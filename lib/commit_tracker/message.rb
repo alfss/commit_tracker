@@ -12,7 +12,7 @@ module CommitTracker
       end
     end
     
-    def create_message(options={})
+    def create(options={})
       case @type
       when 'trackstudio'
         return @commit.create_message(options)
@@ -21,7 +21,7 @@ module CommitTracker
       end
     end
     
-    def delete_message(options={})
+    def delete(options={})
       case @type
       when 'trackstudio'
         return @commit.delete_message(options)

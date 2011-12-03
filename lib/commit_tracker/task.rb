@@ -12,7 +12,7 @@ module CommitTracker
       end
     end
     
-    def create_task(options={})
+    def create(options={})
       case @type
       when 'trackstudio'
         return @commit.create_task(options)
@@ -21,7 +21,7 @@ module CommitTracker
       end
     end
     
-    def delete_task(options={})
+    def delete(options={})
       case @type
       when 'trackstudio'
         return @commit.delete_task(options)
