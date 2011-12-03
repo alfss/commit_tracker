@@ -8,4 +8,5 @@ tmp
 *.gem
 .bundle
 Gemfile.lock
+commit_tracker.tmproj
 
