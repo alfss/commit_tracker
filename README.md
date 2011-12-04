@@ -53,4 +53,4 @@ commit.delete(:task_number => taskId )
 
 ```
 
-Copyright (c) 2011 Sergey V. Kravchuk <alfss.obsd@gmail.com>, released under the GPL 3 license
+Copyright (c) 2011 Sergey V. Kravchuk <alfss.obsd@gmail.com>, released under the BSD license
