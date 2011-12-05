@@ -429,8 +429,6 @@ module CommitTracker
     
     # create message and return message id
     #
-    # [notice] if you api is broke and not return message id, method return "0"
-    #
     # * task number (:task_number)
     # * message status (:msg_status)
     # * text message (:comment)
@@ -489,12 +487,7 @@ module CommitTracker
         raise ErrorCommitTask, e.to_hash[:fault][:reason][:text]
       end
       
-      #if message_number == nil than retrun 0
-      if message_number.to_hash[:create_message_response][:return].nil?
-        return "0"
-      else
-        return message_number.to_hash[:create_message_response][:return]
-      end
+      return message_number.to_hash[:create_message_response][:return]
     end
   end
 end
