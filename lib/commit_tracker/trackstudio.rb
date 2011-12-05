@@ -2,8 +2,18 @@ require "savon"
 require "commit_tracker/error"
 
 module CommitTracker
+  
+  # = CommitTracker::TrackStudio
+  #
+  # Cleint for TrackStudio
   class TrackStudio
     
+    # Initializes the CommitTracker::TrackStudio
+    #
+    # == Examples
+    #   ts = CommitTracker::TrackStudio.new(:url => 'http://ts.domain.com/TrackStudio/services/', 
+    #                                       :login => 'user', 
+    #                                       :password => 'qwerty')
     def initialize(options={})
       url       = options[:url]      || 'http://localhost/TrackStudio/services/'
       @login    = options[:login]    || 'login'
@@ -110,6 +120,11 @@ module CommitTracker
       end
     end
 
+    # return task id by number
+    #
+    # == Examples
+    #
+    #   taskId = ts.get_task_id(1234)
     def get_task_id(task_number)
       raise ErrorCommitTask, "task number is nil" if task_number.nil?
       begin    
@@ -125,6 +140,13 @@ module CommitTracker
       end
     end
     
+    
+    # return message status id by name
+    #
+    # == Examples
+    #
+    #   msg_status = "New"
+    #   mstatusId = ts.get_mstatus_id(taskId, msg_status)
     def get_mstatus_id(taskId, msg_status)
       raise ErrorCommitTask, "msg_status is nil" if msg_status.nil?
       begin
@@ -149,6 +171,12 @@ module CommitTracker
       return nil
     end
     
+    
+    # return user id by name
+    #
+    # == Examples
+    #
+    #   userId = ts.get_user_id("user_1")
     def get_user_id(user)
       begin
         find_user = user || @login
@@ -163,6 +191,12 @@ module CommitTracker
       end  
     end
     
+    # return available workflows by task id
+    #
+    # == Examples
+    #
+    #   taskId        = ts.get_task_id(1234)
+    #   workflow_list = ts.get_workflow_for_task(taskId)
     def get_workflow_for_task(taskId)
       begin
        response =  @Workflow.request :soap,
@@ -176,6 +210,11 @@ module CommitTracker
       end                                  
     end
     
+    # retrun available priority for workflow id
+    #
+    # == Examples
+    #
+    #   priorityId = ts.get_priority_for_wokflow(workflowId)
     def get_priority_for_wokflow(workflow_id)
       response = @Workflow.request :soap,
                                    :getPriorityList,
@@ -185,7 +224,13 @@ module CommitTracker
       value = response.to_hash[:get_priority_list_response][:return]
       return value
     end
-    
+       
+    # return priority id by name and task id
+    #
+    # == Examples
+    #
+    #   taskId        = ts.get_task_id(1234)
+    #   priorityId    = ts.get_priority_id(taskId, "Medium")
     def get_priority_id(taskId, priority)
       begin
         workflow_list = get_workflow_for_task(taskId)
@@ -209,6 +254,11 @@ module CommitTracker
       return nil
     end
     
+    # return priority id by message status id  and resolution name
+    #
+    # == Examples
+    #
+    #   resolutionId  = ts.get_resolution_id(mstatusId, "inProgress")
     def get_resolution_id(mstatusId, resolution)
       begin
         response  = @Workflow.request :soap, 
@@ -232,6 +282,12 @@ module CommitTracker
       return nil
     end
     
+    
+    # return categoryes by task id
+    #
+    # == Examples
+    #
+    #   categoryes_list  = ts.get_category_list_for_task(taskId)
     def get_category_list_for_task(taskId)
       begin
       response =  @Category.request :soap, 
@@ -249,6 +305,11 @@ module CommitTracker
       end
     end
     
+    # return category id by task id and name category
+    #
+    # == Examples
+    #
+    #   category  = ts.get_category_for_task(taskId, "Task")
     def get_category_for_task(taskId, category)
       begin
         categories_list = get_category_list_for_task(taskId)
@@ -264,6 +325,13 @@ module CommitTracker
       end 
     end
     
+    
+    # delete task by id or number
+    #
+    # == Examples
+    #
+    #   ts.delete_task(:task_number => 1234)
+    #   ts.delete_task(:task_number => taskId)
     def delete_task(options={})
       begin
         
@@ -284,6 +352,11 @@ module CommitTracker
       end                            
     end
     
+    # delete message by message id
+    #
+    # == Examples
+    #
+    #   ts.delete_message(:messageId => "4028929033561c0801335a5490e80433")
     def delete_message(options={})
       begin
         @Message.request :soap, 
@@ -295,6 +368,34 @@ module CommitTracker
       end                            
     end
     
+    # create task and return task id
+    #
+    # Options:
+    # * name task (:name)
+    # * short name task (:shortname)
+    # * assigned user (:user)
+    # * parent task (:parent_number)
+    # * description (:description)
+    # * priority (:priority)
+    # * category task (:category)
+    # * budget time for task in seconds (:budget_sec)
+    # * deadline day (:deadline_sec)
+    # * name custom fields (:udf_names)(array)
+    # * value custom fields (:udf_values)(array)
+    #
+    # == Examples
+    #
+    #   taskId = ts.create_task(:name          => "example task 1"
+    #                           :shortname     => "ex1",
+    #                           :user          => "user_1",
+    #                           :parent_number => 123,
+    #                           :description   => "This is example task"
+    #                           :priority      => "Normal",
+    #                           :category      => "Task",
+    #                           :budget_sec    => 3 * 3600,
+    #                           :deadline_sec  => Time.now.to_i + 5 * 86400,
+    #                           :udf_names     => ['one', 'two'],
+    #                           :udf_values    => ['test', 4] )
     def create_task(options={})
       begin
         handlerUserId = get_user_id(options[:user])
@@ -325,6 +426,34 @@ module CommitTracker
       end
     end
     
+    
+    # create message and return message id
+    #
+    # [notice] if you api is broke and not return message id, method return "0"
+    #
+    # * task number (:task_number)
+    # * message status (:msg_status)
+    # * text message (:comment)
+    # * time spent (:hrs)
+    # * assigned user (:user)
+    # * change resolution task (:resolution)
+    # * change priority task (:priority)
+    # * add budget time for task in seconds (:budget_sec)
+    # * set deadline day (:deadline_sec)
+    # * send notify to email (:is_notify)
+    #
+    # == Examples
+    #
+    #    messageId = ts.create_message(:task_number => "1234",
+    #                                  :msg_status => "Assigned",
+    #                                  :comment => "test msg!!!!",
+    #                                  :hrs => 3*3600,
+    #                                  :user => "user_1", 
+    #                                  :resolution => nil,
+    #                                  :priority => "Normal",
+    #                                  :budget_sec => nil,
+    #                                  :deadline_sec => Time.now.to_i + 4 * 86400,
+    #                                  :is_notify => true)
     def create_message(options={})
       begin     
         priorityId    = nil
@@ -362,7 +491,7 @@ module CommitTracker
       
       #if message_number == nil than retrun 0
       if message_number.to_hash[:create_message_response][:return].nil?
-        return 0
+        return "0"
       else
         return message_number.to_hash[:create_message_response][:return]
       end
